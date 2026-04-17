@@ -17,19 +17,10 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
 
-      - name: Get Flutter version from pubspec
-        id: flutter_version
-        run: |
-          # Extracts the sdk version (e.g., 3.41) from pubspec.yaml
-          SDK_VERSION=$(grep 'sdk:' pubspec.yaml | head -n 1 | sed 's/.*sdk: //; s/"//g; s/\^//; s/ //g')
-          echo "FLUTTER_VERSION=$SDK_VERSION" >> $GITHUB_ENV
-          echo "Detected Flutter SDK: $SDK_VERSION"
-
       - name: Install Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: ${{ env.FLUTTER_VERSION }}
-          channel: 'stable'
+          channel: 'stable' # This gets the latest stable Flutter (e.g., 3.22+)
           cache: true
 
       - name: Install dependencies
