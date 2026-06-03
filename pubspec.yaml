@@ -38,7 +38,7 @@ dependencies:
   geolocator: ^13.0.0      # Pulls from GPS and Altimeter chips
   battery_plus: ^6.0.0    # Grabs direct OS battery levels
   noise_meter: ^5.0.0     # Connects to native PCM audio buffer microphones
-  torch_light: ^4.0.0     # Talks directly to the hardware camera flash LED
+  torch_light: ^2.0.0     # Talks directly to the hardware camera flash LED
 
 dev_dependencies:
   flutter_test:
