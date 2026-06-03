@@ -170,7 +170,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           textAlign: TextAlign.center, 
                           style: TextStyle(
                             fontSize: 12, 
-                            fontWeight: FontWeight.w640, 
+                            fontWeight: FontWeight.w600, // Fixed: Changed from w640 to valid w600
                             color: tool.isImplemented ? Colors.white : Colors.grey
                           )
                         ),
@@ -312,7 +312,10 @@ class _ToolWorkspaceState extends State<ToolWorkspace> {
         return Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('${dbLevel.toStringAsFixed(1)} dB', style: const TextStyle(fontSize: 48, fontWeight: FontWeight.bold, color: Colors.emerald)),
+            Text(
+              '${dbLevel.toStringAsFixed(1)} dB', 
+              style: const TextStyle(fontSize: 48, fontWeight: FontWeight.bold, color: Colors.green) // Fixed: Changed from emerald to green
+            ),
             const SizedBox(height: 12),
             const Text('AMBIENT AUDIO AMPLITUDE'),
             const SizedBox(height: 24),
