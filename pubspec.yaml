@@ -34,9 +34,11 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
-  path_provider: ^2.1.5
-  record: ^6.2.0
-  audioplayers: ^6.0.0
+  sensors_plus: ^6.0.0    # Directly accesses Gyroscope & Accelerometer
+  geolocator: ^13.0.0      # Pulls from GPS and Altimeter chips
+  battery_plus: ^6.0.0    # Grabs direct OS battery levels
+  noise_meter: ^5.0.0     # Connects to native PCM audio buffer microphones
+  torch_light: ^4.0.0     # Talks directly to the hardware camera flash LED
 
 dev_dependencies:
   flutter_test:
