@@ -1,7 +1,5 @@
 import 'dart:async';
-import 'dart:math' as math;
 import 'package:flutter/material.dart';
-// Core hardware plugins for the 40+ tool sensors
 import 'package:sensors_plus/sensors_plus.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:battery_plus/battery_plus.dart';
@@ -34,7 +32,6 @@ class SmartToolsApp extends StatelessWidget {
   }
 }
 
-// Data model representing our toolkit items
 class ToolItem {
   final String id;
   final String name;
@@ -60,11 +57,9 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   String selectedCategory = 'all';
-  bool isProUser = false; // Controls Ad Visibility simulation
+  bool isProUser = false;
 
-  // 40+ Tools Dataset Matrix mapping
   final List<ToolItem> tools = const [
-    // Carpenter & Construction
     ToolItem(id: 'ruler', name: 'Ruler', icon: Icons.linear_scale, category: 'carpenter', isImplemented: true),
     ToolItem(id: 'bubble-level', name: 'Bubble Level', icon: Icons.vignette, category: 'carpenter', isImplemented: true),
     ToolItem(id: 'laser-level', name: 'Laser Level', icon: Icons.blur_on, category: 'carpenter'),
@@ -72,7 +67,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     ToolItem(id: 'protractor', name: 'Protractor', icon: Icons.architecture, category: 'carpenter'),
     ToolItem(id: 'magnifier', name: 'Magnifier', icon: Icons.zoom_in, category: 'carpenter'),
 
-    // Measure Sensors
     ToolItem(id: 'db-level', name: 'dB Meter', icon: Icons.volume_up, category: 'measure', isImplemented: true),
     ToolItem(id: 'location', name: 'Altimeter Map', icon: Icons.location_on, category: 'measure', isImplemented: true),
     ToolItem(id: 'distance', name: 'Distance Meter', icon: Icons.straighten, category: 'measure'),
@@ -84,7 +78,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     ToolItem(id: 'lux', name: 'LUX Light Meter', icon: Icons.light_mode, category: 'measure'),
     ToolItem(id: 'speedometer', name: 'Speedometer', icon: Icons.speed, category: 'measure'),
 
-    // Utilities Kit
     ToolItem(id: 'calculator', name: 'Calculator', icon: Icons.calculate, category: 'utility', isImplemented: true),
     ToolItem(id: 'qr-scanner', name: 'Code Scanner', icon: Icons.qr_code_scanner, category: 'utility'),
     ToolItem(id: 'text-scanner', name: 'Text Scanner', icon: Icons.text_fields, category: 'utility'),
@@ -110,7 +103,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               padding: const EdgeInsets.only(right: 12.0),
               child: TextButton.icon(
                 onPressed: () => setState(() => isProUser = true),
-                icon: const Icon(Icons.crown, color: Colors.amber),
+                icon: const Icon(Icons.workspace_premium, color: Colors.amber),
                 label: const Text('Remove Ads', style: TextStyle(color: Colors.amber, fontWeight: FontWeight.bold)),
                 style: TextButton.styleFrom(backgroundColor: Colors.amber.withOpacity(0.1)),
               ),
@@ -119,7 +112,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
       body: Column(
         children: [
-          // SIMULATED AD BANNER (MONETIZATION STRATEGY)
           if (!isProUser)
             Container(
               width: double.infinity,
@@ -127,12 +119,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
               padding: const EdgeInsets.symmetric(vertical: 8),
               child: const Text(
                 '[ Banner Ad placement space: AdMob / UnityAds ]',
-                textAlign: Center,
+                textAlign: TextAlign.center,
                 style: TextStyle(color: Colors.grey, fontSize: 11, fontFamily: 'monospace'),
               ),
             ),
           
-          // CATEGORY TABS
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.all(12),
@@ -146,7 +137,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
           ),
 
-          // GRID OF 40+ UTILITIES
           Expanded(
             child: GridView.builder(
               padding: const EdgeInsets.all(16),
@@ -175,7 +165,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       children: [
                         Icon(tool.icon, size: 32, color: tool.isImplemented ? Colors.amber : Colors.grey[700]),
                         const SizedBox(height: 8),
-                        Text(tool.name, textAlign: TextAlign.center, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w640, color: tool.isImplemented ? Colors.white : Colors.grey)),
+                        Text(
+                          tool.name, 
+                          textAlign: TextAlign.center, 
+                          style: TextStyle(
+                            fontSize: 12, 
+                            fontWeight: FontWeight.w640, 
+                            color: tool.isImplemented ? Colors.white : Colors.grey
+                          )
+                        ),
                       ],
                     ),
                   ),
@@ -203,7 +201,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 }
 
-// --- ACTIVE TOOL ENGINE CANVAS CONTAINER ---
 class ToolWorkspace extends StatefulWidget {
   final ToolItem tool;
   const ToolWorkspace({super.key, required this.tool});
@@ -213,16 +210,15 @@ class ToolWorkspace extends StatefulWidget {
 }
 
 class _ToolWorkspaceState extends State<ToolWorkspace> {
-  // Sensor streams state hooks
   StreamSubscription? _accelerometerSubscription;
   StreamSubscription? _noiseSubscription;
+  NoiseMeter? _noiseMeter;
   double sensorX = 0, sensorY = 0;
   double dbLevel = 0;
   bool isTorchOn = false;
   String geoReadout = "Awaiting Location Trigger...";
   int stopwatchMs = 0;
   Timer? stopwatchTimer;
-  int batteryLevel = 100;
 
   @override
   void dispose() {
@@ -247,7 +243,6 @@ class _ToolWorkspaceState extends State<ToolWorkspace> {
 
   Widget _renderActiveToolLogic() {
     switch (widget.tool.id) {
-      // 1. CARPENTER: BUBBLE LEVEL (Uses Gyro/Accelerometer streams)
       case 'bubble-level':
         _accelerometerSubscription ??= accelerometerEventStream().listen((event) {
           setState(() {
@@ -267,9 +262,9 @@ class _ToolWorkspaceState extends State<ToolWorkspace> {
                   Positioned(
                     left: 90 + (sensorX * -8).clamp(-90, 90),
                     top: 90 + (sensorY * 8).clamp(-90, 90),
-                    child: Container(width: 20, h: 20, decoration: const BoxDecoration(color: Colors.amber, shape: BoxShape.circle)),
+                    child: Container(width: 20, height: 20, decoration: const BoxDecoration(color: Colors.amber, shape: BoxShape.circle)),
                   ),
-                  Center(child: Container(width: 40, h: 40, decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(style: BorderStyle.dashed, color: Colors.grey)))),
+                  Center(child: Container(width: 40, height: 40, decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(style: BorderStyle.solid, color: Colors.grey)))),
                 ],
               ),
             ),
@@ -278,14 +273,13 @@ class _ToolWorkspaceState extends State<ToolWorkspace> {
           ],
         );
 
-      // 2. CARPENTER: RULER (Pixel exact layout calibration)
       case 'ruler':
         return Container(
           width: double.infinity,
           height: 120,
           color: Colors.white,
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.between,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: List.generate(10, (i) => Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
@@ -296,7 +290,6 @@ class _ToolWorkspaceState extends State<ToolWorkspace> {
           ),
         );
 
-      // 3. CARPENTER: TORCH LIGHT (Talks directly to Mobile Camera LED HAL)
       case 'torch':
         return ElevatedButton(
           style: ElevatedButton.styleFrom(shape: const CircleBorder(), padding: const EdgeInsets.all(40), backgroundColor: isTorchOn ? Colors.amber : Colors.grey[800]),
@@ -315,21 +308,29 @@ class _ToolWorkspaceState extends State<ToolWorkspace> {
           child: Icon(Icons.power_settings_new, size: 48, color: isTorchOn ? Colors.black : Colors.white),
         );
 
-      // 4. MEASURE: DECIBEL METER (Analyzes PCM microphone mic amplitudes)
       case 'db-level':
-        _noiseSubscription ??= NoiseMeter().noiseStream.listen((event) {
-          setState(() => dbLevel = event.meanDecibel);
-        });
         return Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('${dbLevel.toStringAsFixed(1)} dB', style: const TextStyle(fontSize: 48, fontWeight: FontWeight.bold, color: Colors.emeraldAccent)),
+            Text('${dbLevel.toStringAsFixed(1)} dB', style: const TextStyle(fontSize: 48, fontWeight: FontWeight.bold, color: Colors.emerald)),
             const SizedBox(height: 12),
             const Text('AMBIENT AUDIO AMPLITUDE'),
+            const SizedBox(height: 24),
+            if (_noiseSubscription == null)
+              ElevatedButton(
+                onPressed: () {
+                  _noiseMeter ??= NoiseMeter();
+                  _noiseSubscription = _noiseMeter?.noise.listen((event) {
+                    setState(() => dbLevel = event.meanDecibel);
+                  }, onError: (Object error) {
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error.toString())));
+                  });
+                },
+                child: const Text('Start Listening'),
+              )
           ],
         );
 
-      // 5. MEASURE: ALTIMETER MAP (Hardware GPS core tracking modules)
       case 'location':
         return Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -349,7 +350,74 @@ class _ToolWorkspaceState extends State<ToolWorkspace> {
           ],
         );
 
-      // 6. UTILITY: CALCULATOR ENGINE
+      case 'stopwatch':
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              '${(stopwatchMs ~/ 60000).toString().padLeft(2, '0')}:${((stopwatchMs % 60000) ~/ 1000).toString().padLeft(2, '0')}.${((stopwatchMs % 1000) ~/ 10).toString().padLeft(2, '0')}',
+              style: const TextStyle(fontSize: 48, fontFamily: 'monospace', color: Colors.amber),
+            ),
+            const SizedBox(height: 24),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    if (stopwatchTimer == null) {
+                      stopwatchTimer = Timer.periodic(const Duration(milliseconds: 10), (timer) {
+                        setState(() => stopwatchMs += 10);
+                      });
+                    } else {
+                      stopwatchTimer?.cancel();
+                      stopwatchTimer = null;
+                      setState(() {});
+                    }
+                  },
+                  child: Text(stopwatchTimer == null ? 'Start' : 'Stop'),
+                ),
+                const SizedBox(width: 12),
+                ElevatedButton(
+                  onPressed: () {
+                    stopwatchTimer?.cancel();
+                    stopwatchTimer = null;
+                    setState(() => stopwatchMs = 0);
+                  },
+                  child: const Text('Reset'),
+                ),
+              ],
+            )
+          ],
+        );
+
+      case 'compass':
+        return const Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.explore, size: 120, color: Colors.amber),
+            SizedBox(height: 16),
+            Text('Compass requires direct device hardware platform initialization hooks.'),
+          ],
+        );
+
+      case 'battery':
+        return FutureBuilder<int>(
+          future: Battery().batteryLevel,
+          builder: (context, snapshot) {
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  snapshot.hasData ? '${snapshot.data}%' : '--%',
+                  style: const TextStyle(fontSize: 48, fontWeight: FontWeight.bold, color: Colors.amber),
+                ),
+                const SizedBox(height: 12),
+                const Text('CURRENT HARDWARE DEVICE BATTERY'),
+              ],
+            );
+          },
+        );
+
       case 'calculator':
         return const Text('Standard math execution engine terminal block built safely inside sandbox compilation frames.');
 
